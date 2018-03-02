@@ -1,15 +1,15 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use Test::More tests => 3;
+use Test::More tests => 2;
 
-use_ok('App::Deployment' => []);
+use App::Deployment;
 
-my $deployment = new_ok('App::Deployment', [
+my App::Deployment $deployer = new_ok('App::Deployment', [
     server => 'Tomcat'
   ]);
 
-ok($deployment->get_server() eq 'Tomcat');
+ok($deployer->get_name() eq 'Tomcat', "Deployer instatiated");
 
 done_testing();
 
