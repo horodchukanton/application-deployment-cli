@@ -1,3 +1,4 @@
+#!/usr/bin/perl
 use strict;
 use warnings FATAL => 'all';
 =head1 NAME
@@ -45,12 +46,12 @@ BEGIN {
     config      => '',
     action      => '',
     application => '',
-    server      => 'Tomcat',
-    username    => 'tomcat',
-    password    => 'tomcat',
-    auth        => 'basic',
-    hostname    => '127.0.0.1',
-    port        => '8080',
+    server      => '',
+    username    => '',
+    password    => '',
+    auth        => '',
+    hostname    => '',
+    port        => '',
 
     debug       => 1,
   );
@@ -70,24 +71,16 @@ BEGIN {
 
 # Should read config if given
 if ($OPTIONS{config}) {
-  die "File does not exists $OPTIONS{config} \n" unless (-f $OPTIONS{config});
-
-  open (my $config_fh, '<', $OPTIONS{config}) or die "Can't open file $OPTIONS{config} : $!";
-
-  while (my $entry = <$config_fh>) {
-    chomp $entry;
-    my ($key, $value) = split('=', $entry, 2);
-
-    # TODO: should I validate values here?
-    $OPTIONS{$key} = $value;
-  }
+   parse_config($OPTIONS{config});
 }
 
 # Then will check if have all mandatory arguments
 my @mandatory_args = qw/server username password hostname port action/;
+my @missing_args = ();
 foreach my $arg (@mandatory_args) {
-  die "Option --$arg is required \n" unless ($OPTIONS{$arg});
+  push (@missing_args, $arg) unless ($OPTIONS{$arg});
 };
+die join("\n", map { "Option --$_ is required" } @missing_args) if @missing_args;
 
 # Now when we have all info can create module instance
 require App::Deployment;
@@ -95,7 +88,37 @@ App::Deployment->import();
 my $deployer = App::Deployment->new(%OPTIONS);
 
 # Check if we got approriate action
-die "Unknown action $OPTIONS{action}" unless $deployer->have_method($OPTIONS{action});
+my $action = $OPTIONS{action};
+die "Unknown action '$action' for server $OPTIONS{server}" unless $deployer->have_method($action);
 
+#TODO: logging
+
+# Execute
+
+
+exit ($deployer->$action($OPTIONS{application}))
+       ? 0 # success
+       : 1; # failure
+
+#**********************************************************
+=head2 parse_config($filename) - reads and applies values from config
+
+=cut
+#**********************************************************
+sub parse_config{
+  my ($filename) = @_;
+
+  die "File does not exists $filename \n" unless (-f $filename);
+
+  open (my $config_fh, '<', $filename) or die "Can't open file $filename : $!";
+
+  while (my $entry = <$config_fh>) {
+    chomp $entry;
+    my ($key, $value) = split('=', $entry, 2);
+
+    # TODO: should I validate values here?
+    $OPTIONS{$key} ||= $value;
+  }
+}
 
 exit 0;
