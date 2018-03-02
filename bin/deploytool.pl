@@ -10,13 +10,12 @@ use warnings FATAL => 'all';
 
 =head1 SYNOPSIS
 
-  deploytool.pl - script for managing deployed application
+  deploytool.pl - script for managing deployed application.
 
   Arguments:
-    --config
-    --action deploy
+    --config, path to a config file in .bashrc style (key=value\n)
+    --action deploy|check|undeploy|start
     --application hello-world.war
-
     --hostname
     --user
     --password
@@ -31,6 +30,7 @@ use warnings FATAL => 'all';
 
 =cut
 
+use v5.16;
 our $VERSION = 0.01;
 
 # Core modules from at least Perl 5.6
@@ -38,42 +38,64 @@ use Getopt::Long qw/GetOptions HelpMessage :config auto_help auto_version ignore
 use Pod::Usage qw/pod2usage/;
 use POSIX qw/strftime/;
 
-our (%conf, @MODULES, %OPTIONS);
+our %OPTIONS;
 
 BEGIN {
   %OPTIONS = (
-    skip_check_sql => '',
-    skip_backup    => '',
-    clean          => '',
-    renew_license  => '',
-    PREFIX         => '/usr/abills',
-    TEMP_DIR       => '/tmp',
-    GIT_BRANCH     => 'master',
-    SOURCE         => 'git',
-    DEBUG          => 0,
-    GIT_REPO_HOST  => 'git@abills.net.ua',
-    USERNAME       => '',
-    PASSWORD       => '',
-    update_sql     => '',
+    config      => '',
+    action      => '',
+    application => '',
+    server      => 'Tomcat',
+    username    => 'tomcat',
+    password    => 'tomcat',
+    auth        => 'basic',
+    hostname    => '127.0.0.1',
+    port        => '8080',
+
+    debug       => 1,
   );
 
   GetOptions(
-    'debug|D=i'                     => \$OPTIONS{DEBUG},
-    'branch=s'                      => \$OPTIONS{GIT_BRANCH},
-    'clean'                         => \$OPTIONS{clean},
-    'prefix=s'                      => \$OPTIONS{PREFIX},
-    'tempdir=s'                     => \$OPTIONS{TEMP_DIR},
-    'source=s'                      => \$OPTIONS{SOURCE},
-    'git-repo=s'                    => \$OPTIONS{GIT_REPO_HOST},
-    'skip_check_sql|skip-check-sql' => \$OPTIONS{skip_check_sql},
-    'skip_backup|skip-backup'       => \$OPTIONS{skip_backup},
-    'login=s'                       => \$OPTIONS{USERNAME},
-    'password=s'                    => \$OPTIONS{PASSWORD},
-    'dl|license'                    => \$OPTIONS{renew_license},
-    'sql-update|sql_update'         => \$OPTIONS{update_sql}
+    'config=s'   => \$OPTIONS{config},
+    'action=s'   => \$OPTIONS{action},
+    'server=s'   => \$OPTIONS{server},
+    'username=s' => \$OPTIONS{username},
+    'password=s' => \$OPTIONS{password},
+    'auth=s'     => \$OPTIONS{auth},
+    'hostname=s' => \$OPTIONS{hostname},
+    'port=i'     => \$OPTIONS{port},
+    'debug=i'    => \$OPTIONS{debug},
   ) or die pod2usage();
+}
 
-  if (!-d $OPTIONS{PREFIX} && !-d "$OPTIONS{PREFIX}/lib") {
-    die " --prefix should point to abills sources dir\n";
+# Should read config if given
+if ($OPTIONS{config}) {
+  die "File does not exists $OPTIONS{config} \n" unless (-f $OPTIONS{config});
+
+  open (my $config_fh, '<', $OPTIONS{config}) or die "Can't open file $OPTIONS{config} : $!";
+
+  while (my $entry = <$config_fh>) {
+    chomp $entry;
+    my ($key, $value) = split('=', $entry, 2);
+
+    # TODO: should I validate values here?
+    $OPTIONS{$key} = $value;
   }
 }
+
+# Then will check if have all mandatory arguments
+my @mandatory_args = qw/server username password hostname port action/;
+foreach my $arg (@mandatory_args) {
+  die "Option --$arg is required \n" unless ($OPTIONS{$arg});
+};
+
+# Now when we have all info can create module instance
+require App::Deployment;
+App::Deployment->import();
+my $deployer = App::Deployment->new(%OPTIONS);
+
+# Check if we got approriate action
+die "Unknown action $OPTIONS{action}" unless $deployer->have_method($OPTIONS{action});
+
+
+exit 0;
