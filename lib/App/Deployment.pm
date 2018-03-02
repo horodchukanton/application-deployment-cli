@@ -15,6 +15,8 @@ use warnings FATAL => 'all';
 
 =cut
 
+use File::Spec;
+
 # Transparent passing function call to underlying plugin
 AUTOLOAD {
   our $AUTOLOAD;
@@ -49,7 +51,7 @@ sub new{
 
   # Load plugin
   eval {
-    require "App/Deployment/$self->{server}.pm";
+    require File::Spec->catfile('App', 'Deployment', "$self->{server}.pm");
     "App::Deployment::$self->{server}"->import();
     $self->{Host} = "App::Deployment::$self->{server}"->new(%conf);
   };
@@ -76,7 +78,7 @@ sub have_method {
   return $self->{Host}->can($method);
 }
 
-# Added empty DESTROY because of AUTOLOAD use
+# Added empty DESTROY because of AUTOLOAD usage
 DESTROY {};
 
 1;
