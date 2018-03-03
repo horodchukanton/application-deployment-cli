@@ -14,12 +14,20 @@ use warnings FATAL => 'all';
   deploytool.pl - script for managing deployed application.
 
   Arguments:
-    --config, path to a config file in .bashrc style (key=value\n)
-    --action deploy|check|undeploy|start
-    --application hello-world.war
-    --hostname
+    --config,     path to a config file in .bashrc style (key=value\n)
+    --action      string, deploy|check|undeploy|start
+    --application string, hello-world.war
+
+    --server      string, name of server plugin to use
+    --plugin=s    string, allow to pass custom args to plugin (--plugin upload=~/app.war --plugin ssl=1)
+
+    --hostname    server IP or FQDN
+    --port        server port
+
     --user
     --password
+
+    --debug
 
 =head1 PURPOSES
 
@@ -49,7 +57,7 @@ BEGIN {
     server      => '',
     username    => '',
     password    => '',
-    auth        => '',
+#    auth        => '',
     hostname    => '',
     port        => '',
 
@@ -63,7 +71,7 @@ BEGIN {
     'server=s'      => \$OPTIONS{server},
     'username=s'    => \$OPTIONS{username},
     'password=s'    => \$OPTIONS{password},
-    'auth=s'        => \$OPTIONS{auth},
+#    'auth=s'        => \$OPTIONS{auth},
     'hostname=s'    => \$OPTIONS{hostname},
     'port=i'        => \$OPTIONS{port},
     'debug=i'       => \$OPTIONS{debug},
