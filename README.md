@@ -10,7 +10,9 @@ Usage:
     ./deploytool.pl - script for managing deployed application.
 
     Arguments:
-    --config,     path to a config file in .bashrc style (key=value\n)
+    --config,     path to a config file in 'key=value\n' style
+                  all options passed by command line overrides config values 
+                  
     --action      string, deploy|check|undeploy|start
     --application string, hello-world.war
 
@@ -19,8 +21,7 @@ Usage:
 
     --hostname    server IP or FQDN
     --port        server port
-
     --user
     --password
 
-    --debug=i
+    --debug
