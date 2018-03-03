@@ -1,4 +1,4 @@
-**Deployer**
+**App::Deployment**
 
 Simple perl module for managing application state on application server.
 Includes command line utility.
