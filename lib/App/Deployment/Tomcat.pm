@@ -2,7 +2,6 @@ package App::Deployment::Tomcat;
 use strict;
 use warnings FATAL => 'all';
 
-use Carp qw(carp croak);
 use LWP::UserAgent;
 use HTTP::Request::Common;
 
