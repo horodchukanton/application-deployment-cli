@@ -53,25 +53,27 @@ BEGIN {
     hostname    => '',
     port        => '',
 
-    debug       => 1,
+    debug       => 0,
   );
 
   GetOptions(
-    'config=s'   => \$OPTIONS{config},
-    'action=s'   => \$OPTIONS{action},
-    'server=s'   => \$OPTIONS{server},
-    'username=s' => \$OPTIONS{username},
-    'password=s' => \$OPTIONS{password},
-    'auth=s'     => \$OPTIONS{auth},
-    'hostname=s' => \$OPTIONS{hostname},
-    'port=i'     => \$OPTIONS{port},
-    'debug=i'    => \$OPTIONS{debug},
+    'config=s'      => \$OPTIONS{config},
+    'application=s' => \$OPTIONS{application},
+    'action=s'      => \$OPTIONS{action},
+    'server=s'      => \$OPTIONS{server},
+    'username=s'    => \$OPTIONS{username},
+    'password=s'    => \$OPTIONS{password},
+    'auth=s'        => \$OPTIONS{auth},
+    'hostname=s'    => \$OPTIONS{hostname},
+    'port=i'        => \$OPTIONS{port},
+    'debug=i'       => \$OPTIONS{debug},
+    'plugin=s'      => \%OPTIONS,
   ) or die pod2usage();
 }
 
 # Should read config if given
 if ($OPTIONS{config}) {
-   parse_config($OPTIONS{config});
+  parse_config($OPTIONS{config});
 }
 
 # Then will check if have all mandatory arguments
@@ -80,7 +82,7 @@ my @missing_args = ();
 foreach my $arg (@mandatory_args) {
   push (@missing_args, $arg) unless ($OPTIONS{$arg});
 };
-die join("\n", map { "Option --$_ is required" } @missing_args) if @missing_args;
+die join("\n", map {"Option --$_ is required"} @missing_args) if @missing_args;
 
 # Now when we have all info can create module instance
 require App::Deployment;
@@ -97,15 +99,15 @@ die "Unknown action '$action' for server $OPTIONS{server}" unless $deployer->hav
 
 
 exit ($deployer->$action($OPTIONS{application}))
-       ? 0 # success
-       : 1; # failure
+  ? 0 # success
+  : 1; # failure
 
 #**********************************************************
 =head2 parse_config($filename) - reads and applies values from config
 
 =cut
 #**********************************************************
-sub parse_config{
+sub parse_config {
   my ($filename) = @_;
 
   die "File does not exists $filename \n" unless (-f $filename);
