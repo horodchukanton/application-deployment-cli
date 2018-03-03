@@ -63,6 +63,45 @@ sub new{
 };
 
 #**********************************************************
+=head2 get_name()
+
+  Returns:
+    name of underlying server
+
+=cut
+#**********************************************************
+sub get_name {
+  my ($self) = @_;
+
+  return $self->{server};
+}
+
+#**********************************************************
+=head2 is_reachable() - checks if application server is reachable
+
+  Arguments:
+     -
+
+  Returns:
+
+
+=cut
+#**********************************************************
+sub is_reachable {
+  my ($self) = @_;
+
+  require Net::Ping;
+  Net::Ping->import();
+
+  my $p = Net::Ping->new('icmp', 2);
+
+  # Will connect to port we use for management
+  $p->port_number($self->{port});
+  $p->open($self->{hostname});
+  return $p->service_check();
+}
+
+#**********************************************************
 =head2 have_method($method) - checks application server for implemented method
 
   Arguments:
