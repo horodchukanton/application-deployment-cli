@@ -15,15 +15,16 @@ my $deployer = App::Deployment->new(
 );
 my $test_app = 'examples.war';
 
-#ok(simple_request($test_app, 'deploy'), 'Deploy');
-ok(check_simple_request($test_app, 'check'), 'Application is running');
-ok(check_simple_request($test_app, 'stop'), 'Stopped application');
-ok(!check_simple_request($test_app, 'check'), 'Application stopped');
-ok(check_simple_request($test_app, 'start'), 'Started application');
+SKIP : {
+  skip ('Application server is not reachable', 6) unless $deployer->is_reachable();
 
-#ok($simple_request($test_app, 'indeploy', 'Undeploy');
-
-done_testing();
+  ok(check_simple_request($test_app, 'deploy'), 'Deploy');
+  ok(check_simple_request($test_app, 'check'), 'Application is running');
+  ok(check_simple_request($test_app, 'stop'), 'Stopped application');
+  ok(!check_simple_request($test_app, 'check'), 'Application stopped');
+  ok(check_simple_request($test_app, 'start'), 'Started application');
+  ok(check_simple_request($test_app, 'undeploy'), 'Undeploy');
+}
 
 1;
 
