@@ -96,7 +96,6 @@ sub deploy {
 #**********************************************************
 sub start {
   return shift->_simple_request('start', @_);
-
 }
 
 #**********************************************************
@@ -174,7 +173,6 @@ sub undeploy {
 #**********************************************************
 sub server_info {
   return shift->_simple_request('serverinfo');
-
 }
 
 #**********************************************************
@@ -192,7 +190,7 @@ sub _simple_request {
   my ($self, $method, $application) = @_;
 
   my %params = ();
-  if (defined $application){
+  if (defined $application) {
     $params{path} = '/' . _file_name_to_path($application);
   }
 
@@ -229,7 +227,7 @@ sub _make_request {
   my $uri = "$self->{uri}/$action";
 
   # Add params if any
-  if (scalar %params){
+  if (scalar %params) {
     $uri .= '?' . _serialize_params(%params);
   }
 
@@ -259,7 +257,7 @@ sub _serialize_params {
 
   my @pairs = ();
 
-  while (my ($key, $value) = each(%params)){
+  while (my ($key, $value) = each(%params)) {
     #TODO: uriencode
     push(@pairs, "$key=$value");
   }
