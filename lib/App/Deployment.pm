@@ -56,7 +56,7 @@ sub new{
     $self->{Host} = "App::Deployment::$self->{server}"->new(%conf);
   };
   if ($@){
-    die "Unknown server given ($self->{server}).\n $@";
+    die "Failed to instantiate server plugin ($self->{server}).\n; $@";
   }
 
   return $self;

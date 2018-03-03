@@ -96,11 +96,15 @@ die "Unknown action '$action' for server $OPTIONS{server}" unless $deployer->hav
 #TODO: logging
 
 # Execute
+my $operation_result = $deployer->$action($OPTIONS{application});
 
+if ($operation_result && $operation_result->{status}){
+  print $operation_result->{status};
+}
 
-exit ($deployer->$action($OPTIONS{application}))
-  ? 0 # success
-  : 1; # failure
+exit ($operation_result && $operation_result->{ok})
+       ? 0 # success
+       : 1; # failure
 
 #**********************************************************
 =head2 parse_config($filename) - reads and applies values from config
